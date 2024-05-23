@@ -16,6 +16,7 @@ void print_text();
 void insert_text_by_line();
 void search_text();
 void clear_console();
+void free_memory();
 
 int main() {
     int user_command;
@@ -78,6 +79,7 @@ int main() {
         }
         else printf("Enter a valid answer\n");
    }
+    free_memory();
     return 0;
 }
 
@@ -97,6 +99,7 @@ void print_help(){
 void append_text_to_end(){
     char buffer[256];
     printf("Enter a text to append: ");
+    getchar();
     fgets(buffer, 256, stdin);
     buffer[strcspn(buffer, "\n")] = 0; // якщо знайдемо новий рядок, то видалимо його
 
@@ -109,7 +112,24 @@ void append_text_to_end(){
 }
 
 void start_new_line(){
-
+    if (line_count >= row_number){
+        row_number *= 2; // якщо недостатньо рядків, то виділяємо в два рази більше
+        text = (char**)realloc(text, row_number * sizeof(char*));
+        if (text == nullptr){
+            fprintf(stderr, "Fail to reallocate memory\n");
+            exit(EXIT_FAILURE);
+        }
+        for (int i = line_count; i < row_number; i++) {
+            text[i] = (char*)malloc(buffer_size * sizeof(char)); // виділяємо памʼять для нових рядків
+            if (text[i] == nullptr){
+                fprintf(stderr, "Memory allocating is failed");
+                exit(EXIT_FAILURE);
+            }
+            text[i][0] = '\0';
+        }
+    }
+    line_count++;
+    printf("New line is started.\n");
 }
 
 void save_info(){
@@ -124,7 +144,7 @@ void save_info(){
         printf("Error while opening file\n");
         return;
     }
-    for (int i = 0; i < line_count; ++i) {
+    for (int i = 0; i < line_count; i++) {
         fprintf(file, "%s", text[i]);
     }
     printf("Text has been saved successfully\n");
@@ -144,7 +164,7 @@ void load_info(){
     else {
         char my_string[100];
         while (fgets(my_string, sizeof(my_string), file) != nullptr) { // sizeof - максимальна кількість прочитаних рядків``
-            printf("%s", my_string);
+            printf("%s\n", my_string);
         }
         fclose(file);
         printf("Text has been loaded successfully\n");
@@ -152,14 +172,43 @@ void load_info(){
 }
 
 void print_text(){
-
+    for (int i = 0; i < line_count; i++) {
+        printf("%s\n", text[i]);
+    }
 }
 void insert_text_by_line(){
+    int line, index;
+    char buffer[256];
+    printf("Choose line and index: ");
+    scanf("%d %d", &line, &index);
+    if (line >= line_count || index > strlen(text[line])) {
+        printf("You entered invalid line or index");
+        return;
+    }
 
+    printf("Enter text to insert: ");
+    getchar(); // очищуємо новий рядок що залишився від scanf
+    fgets(buffer, 256, stdin);
+    buffer[strcspn(buffer, "\n")] = 0; // видалення пустого рядку який йде після інпута користувача
+
+    char temporary_buffer[256]; // зберігає текст який уде псіля того що ми вставили
+    strcpy(temporary_buffer, text[line] + index);
+    text[line][index] = '\0'; // щоб завершити рядок
+    strcat(text[line], buffer); // додаємо текст до існуючого рядка
+    strcat(text[line], temporary_buffer); // додаємо текст який залишився після того що вставили
+    printf("Text has been inserted.\n");
 }
+
 void search_text(){
 
 }
 void clear_console(){
 
+}
+
+void free_memory(){
+    for (int i = 0; i < row_number; i++) {
+        free(text[i]);
+    }
+    free(text);
 }
