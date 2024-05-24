@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
+#include <unistd.h>
 
 char** text;
 int row_number = 10;
@@ -17,6 +18,20 @@ void insert_text_by_line();
 void search_text();
 void clear_console();
 void free_memory();
+bool file_exists(const char* filename);
+
+enum Commands{
+    COMMAND_HELP = 0,
+    COMMAND_APPEND = 1,
+    COMMAND_NEW_LINE = 2,
+    COMMAND_SAVE = 3,
+    COMMAND_LOAD = 4,
+    COMMAND_PRINT = 5,
+    COMMAND_INSERT_LI = 6,
+    COMMAND_SEARCH = 7,
+    COMMAND_CLEAR = 8
+};
+
 
 int main() {
     int user_command;
@@ -42,28 +57,31 @@ int main() {
         printf("Enter the command: ");
         scanf("%d", &user_command);
         switch (user_command) {
-            case 1:
+            case COMMAND_HELP:
+                print_help();
+                break;
+            case COMMAND_APPEND:
                 append_text_to_end();
                 break;
-            case 2:
+            case COMMAND_NEW_LINE:
                 start_new_line();
                 break;
-            case 3:
+            case COMMAND_SAVE:
                 save_info();
                 break;
-            case 4:
+            case COMMAND_LOAD:
                 load_info();
                 break;
-            case 5:
+            case COMMAND_PRINT:
                 print_text();
                 break;
-            case 6:
+            case COMMAND_INSERT_LI:
                 insert_text_by_line();
                 break;
-            case 7:
+            case COMMAND_SEARCH:
                 search_text();
                 break;
-            case 8:
+            case COMMAND_CLEAR:
                 clear_console();
                 break;
             default:
@@ -100,7 +118,7 @@ void append_text_to_end(){
     char buffer[256];
     printf("Enter a text to append: ");
     getchar();
-    fgets(buffer, 256, stdin);
+    fgets(buffer, buffer_size, stdin);
     buffer[strcspn(buffer, "\n")] = 0; // якщо знайдемо новий рядок, то видалимо його
 
     if (line_count == 0){
@@ -128,7 +146,7 @@ void start_new_line(){
             text[i][0] = '\0';
         }
     }
-    line_count++;
+    line_count++; // до підрахунку рядків додаємо рядок
     printf("New line is started.\n");
 }
 
@@ -136,9 +154,28 @@ void save_info(){
     char save_name[100];
     printf("Enter the file name for saving: ");
     scanf("%s", save_name);
+    save_name[strcspn(save_name, "\n")] = 0;
 
     FILE* file;
-    file = fopen(save_name, "w");
+    if (file_exists(save_name)){
+
+        printf("Do you want ot overwrite this file (y/n)?: ");
+        char response;
+        scanf(" %c", &response);
+        getchar();
+
+        if (response == 'y'){
+            file = fopen(save_name, "w");
+        } else if (response == 'n'){
+            file = fopen(save_name, "a");
+        } else {
+            printf("Invalid answer");
+            return;
+        }
+
+    } else {
+        file = fopen(save_name, "w");
+    }
     if (file == nullptr)
     {
         printf("Error while opening file\n");
@@ -147,8 +184,8 @@ void save_info(){
     for (int i = 0; i < line_count; i++) {
         fprintf(file, "%s", text[i]);
     }
-    printf("Text has been saved successfully\n");
     fclose(file);
+    printf("Text has been saved successfully\n");
 }
 
 void load_info(){
@@ -176,6 +213,7 @@ void print_text(){
         printf("%s\n", text[i]);
     }
 }
+
 void insert_text_by_line(){
     int line, index;
     char buffer[256];
@@ -188,7 +226,7 @@ void insert_text_by_line(){
 
     printf("Enter text to insert: ");
     getchar(); // очищуємо новий рядок що залишився від scanf
-    fgets(buffer, 256, stdin);
+    fgets(buffer, buffer_size, stdin);
     buffer[strcspn(buffer, "\n")] = 0; // видалення пустого рядку який йде після інпута користувача
 
     char temporary_buffer[256]; // зберігає текст який уде псіля того що ми вставили
@@ -200,10 +238,21 @@ void insert_text_by_line(){
 }
 
 void search_text(){
-
+    char buffer[256];
+    printf("Enter text to search: ");
+    getchar();
+    fgets(buffer, buffer_size, stdin);
+    buffer[strcspn(buffer, "\n")] = 0;
+    for (int i = 0; i < line_count; i++) {
+        char* position = text[i];
+        while((position = strstr(position, buffer)) != nullptr){
+            printf("Text is present in this position: %d %ld\n", i, position - text[i]);
+            position += strlen(buffer);
+        }
+    }
 }
-void clear_console(){
 
+void clear_console(){
 }
 
 void free_memory(){
@@ -211,4 +260,14 @@ void free_memory(){
         free(text[i]);
     }
     free(text);
+}
+
+bool file_exists(const char *filename){
+    FILE* file_pointer = fopen(filename, "r");
+    bool is_exists = false;
+    if (file_pointer != nullptr){
+        is_exists = true;
+        fclose(file_pointer);
+    }
+    return is_exists;
 }
