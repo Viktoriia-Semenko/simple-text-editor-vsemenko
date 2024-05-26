@@ -54,6 +54,11 @@ programming)
 7. Files: CSAPP 1.7.4
 8. File opening/writing/closing API in C: https://cplusplus.com/reference/cstdio/fopen/
 
+# 🧮**Test cases**
+[Link on the file with test cases](https://github.com/Viktoriia-Semenko/simple-text-editor-vsemenko/blob/main/text_cases.md)
+
+
+
 
 
 
