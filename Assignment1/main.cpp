@@ -1,7 +1,6 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
-#include <unistd.h>
 
 char** text;
 int row_number = 10;
@@ -16,7 +15,6 @@ void load_info();
 void print_text();
 void insert_text_by_line();
 void search_text();
-void clear_console();
 void free_memory();
 bool file_exists(const char* filename);
 
@@ -29,9 +27,7 @@ enum Commands{
     COMMAND_PRINT = 5,
     COMMAND_INSERT_LI = 6,
     COMMAND_SEARCH = 7,
-    COMMAND_CLEAR = 8
 };
-
 
 int main() {
     int user_command;
@@ -55,7 +51,12 @@ int main() {
     while (true){
         char continue_input[2];
         printf("Enter the command: ");
-        scanf("%d", &user_command);
+        if (scanf("%d", &user_command) != 1){ // scanf повертає 1, якщо програма зчитала інтежер
+            printf("Invalid input. Please, enter the number given in the help-menu.\n");
+            int a;
+            while ((a = getchar()) != '\n') {}
+            continue;
+        }
         switch (user_command) {
             case COMMAND_HELP:
                 print_help();
@@ -81,9 +82,6 @@ int main() {
             case COMMAND_SEARCH:
                 search_text();
                 break;
-            case COMMAND_CLEAR:
-                clear_console();
-                break;
             default:
                 printf("This command is not implemented\n");
         }
@@ -104,6 +102,7 @@ int main() {
 void print_help(){
     printf("This program is the 'Simple Text Editor'\n"
            "It implements the following commands:\n");
+    printf("0 - See the commands\n");
     printf("1 - Append text symbols to the end\n");
     printf("2 - Start the new line\n");
     printf("3 - Saving the information\n");
@@ -111,15 +110,14 @@ void print_help(){
     printf("5 - Print the current text to console\n");
     printf("6 - Insert the text by line and symbol index\n");
     printf("7 - Search for the text\n");
-    printf("8 - Clearing the console\n");
 }
 
 void append_text_to_end(){
     char buffer[256];
     printf("Enter a text to append: ");
-    getchar();
+    getchar(); // видалєямо рядок залишений з інпута
     fgets(buffer, buffer_size, stdin);
-    buffer[strcspn(buffer, "\n")] = 0; // якщо знайдемо новий рядок, то видалимо його
+    buffer[strcspn(buffer, "\n")] = '\0'; // якщо знайдемо новий рядок
 
     if (line_count == 0){
         strcpy(text[line_count], buffer);
@@ -140,12 +138,13 @@ void start_new_line(){
         for (int i = line_count; i < row_number; i++) {
             text[i] = (char*)malloc(buffer_size * sizeof(char)); // виділяємо памʼять для нових рядків
             if (text[i] == nullptr){
-                fprintf(stderr, "Memory allocating is failed");
+                fprintf(stderr, "Memory allocating is failed\n");
                 exit(EXIT_FAILURE);
             }
             text[i][0] = '\0';
         }
     }
+    text[line_count][0] = '\0';
     line_count++; // до підрахунку рядків додаємо рядок
     printf("New line is started.\n");
 }
@@ -154,22 +153,21 @@ void save_info(){
     char save_name[100];
     printf("Enter the file name for saving: ");
     scanf("%s", save_name);
-    save_name[strcspn(save_name, "\n")] = 0;
 
     FILE* file;
     if (file_exists(save_name)){
-
         printf("Do you want ot overwrite this file (y/n)?: ");
         char response;
-        scanf(" %c", &response);
         getchar();
+        scanf("%c", &response);
 
         if (response == 'y'){
             file = fopen(save_name, "w");
         } else if (response == 'n'){
             file = fopen(save_name, "a");
+            fseek(file, 0, SEEK_END);
         } else {
-            printf("Invalid answer");
+            printf("Invalid answer\n");
             return;
         }
 
@@ -181,8 +179,9 @@ void save_info(){
         printf("Error while opening file\n");
         return;
     }
+
     for (int i = 0; i < line_count; i++) {
-        fprintf(file, "%s", text[i]);
+        fprintf(file, "%s\n", text[i]); // додаємо новий рядок псіля кожного нового
     }
     fclose(file);
     printf("Text has been saved successfully\n");
@@ -243,16 +242,19 @@ void search_text(){
     getchar();
     fgets(buffer, buffer_size, stdin);
     buffer[strcspn(buffer, "\n")] = 0;
+
+    bool is_found = false;
     for (int i = 0; i < line_count; i++) {
         char* position = text[i];
         while((position = strstr(position, buffer)) != nullptr){
             printf("Text is present in this position: %d %ld\n", i, position - text[i]);
             position += strlen(buffer);
+            is_found = true;
+            }
         }
+    if (!is_found){
+        printf("There is no match for the given text.\n");
     }
-}
-
-void clear_console(){
 }
 
 void free_memory(){
