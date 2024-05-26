@@ -4,8 +4,8 @@
 
 char** text;
 int row_number = 10;
-int buffer_size = 256;
-int line_count = 0;
+int buffer_size = 256; // кожен рядок може зберігати макс 256 символів
+int line_count = 0; // рахуємо рядки, які вже заповнені
 
 void print_help();
 void append_text_to_end();
@@ -32,19 +32,19 @@ enum Commands{
 int main() {
     int user_command;
 
-    text = (char**)malloc(row_number * sizeof(char*)); // виділяємо памʼять для поінтерів
+    text = (char**)malloc(row_number * sizeof(char*)); // виділяємо памʼять для поінтерів на рядки
     if (text == nullptr){
         fprintf(stderr, "Cannot allocate memory for this input");
         return EXIT_FAILURE;
     }
-
+    // виділяємо памʼять для кожного рядка
     for (int i = 0; i < row_number; i++){
         text[i] = (char*) malloc(buffer_size * sizeof(char));
         if (text[i] == nullptr){
             fprintf(stderr, "Cannot allocate memory for this input");
             return EXIT_FAILURE;
         }
-        text[i][0] = '\0';
+        text[i][0] = '\0'; // ініціалізуємо кожен рядок як порожній
     }
 
     print_help();
@@ -54,7 +54,7 @@ int main() {
         if (scanf("%d", &user_command) != 1){ // scanf повертає 1, якщо програма зчитала інтежер
             printf("Invalid input. Please, enter the number given in the help-menu.\n");
             int a;
-            while ((a = getchar()) != '\n') {}
+            while ((a = getchar()) != '\n') {} // очищуємо буфер інпуту
             continue;
         }
         switch (user_command) {
@@ -113,18 +113,40 @@ void print_help(){
 }
 
 void append_text_to_end(){
-    char buffer[256];
+    char* buffer = nullptr;
+    size_t buffer_size = 0;
+    ssize_t input_length;
+
     printf("Enter a text to append: ");
     getchar(); // видалєямо рядок залишений з інпута
-    fgets(buffer, buffer_size, stdin);
-    buffer[strcspn(buffer, "\n")] = '\0'; // якщо знайдемо новий рядок
+    input_length = getline(&buffer, &buffer_size, stdin);
+    if (input_length == -1){
+        fprintf(stderr, "Error while reading input.\n");
+        free(buffer);
+        return;
+    }
+
+    buffer[input_length - 1] = '\0'; // видалення нового рядка
 
     if (line_count == 0){
-        strcpy(text[line_count], buffer);
+        strncpy(text[line_count], buffer, buffer_size);
         line_count ++;
     } else{
-        strcat(text[line_count - 1], buffer); // додаємо текст в останній рядок
+        size_t current_length = strlen(text[line_count - 1]);
+        size_t new_length = current_length + strlen(buffer) + 1;
+        //strcat(text[line_count - 1], buffer); // додаємо текст в останній рядок
+
+        if (new_length > buffer_size) {
+            text[line_count - 1] = (char*) realloc(text[line_count - 1], new_length * sizeof(char));
+            if (text[line_count - 1] == nullptr) {
+                fprintf(stderr, "Memory reallocation failed\n");
+                free(buffer);
+                return;
+            }
+        }
+        strcat(text[line_count - 1], buffer);
     }
+    free(buffer);
 }
 
 void start_new_line(){
@@ -187,7 +209,7 @@ void save_info(){
     printf("Text has been saved successfully\n");
 }
 
-void load_info(){
+void load_info() {
     char load_name[100];
     printf("Enter the file name for loading: ");
     scanf("%s", load_name);
@@ -215,7 +237,10 @@ void print_text(){
 
 void insert_text_by_line(){
     int line, index;
-    char buffer[256];
+    char* buffer = nullptr;
+    size_t buffer_size = 0;
+    ssize_t input_length;
+
     printf("Choose line and index: ");
     scanf("%d %d", &line, &index);
     if (line >= line_count || index > strlen(text[line])) {
@@ -225,14 +250,42 @@ void insert_text_by_line(){
 
     printf("Enter text to insert: ");
     getchar(); // очищуємо новий рядок що залишився від scanf
-    fgets(buffer, buffer_size, stdin);
-    buffer[strcspn(buffer, "\n")] = 0; // видалення пустого рядку який йде після інпута користувача
+    input_length = getline(&buffer, &buffer_size, stdin);
+    if (input_length == -1) {
+        fprintf(stderr, "Error reading input\n");
+        free(buffer);
+        return;
+    }
 
-    char temporary_buffer[256]; // зберігає текст який уде псіля того що ми вставили
+    buffer[input_length - 1] = '\0';
+
+    size_t current_length = strlen(text[line]);
+    size_t buffer_length = strlen(buffer);
+    size_t new_length = current_length + buffer_length + 1;
+
+    if (new_length > buffer_size) {
+        text[line] = (char*) realloc(text[line], new_length * sizeof(char));
+        if (text[line] == nullptr) {
+            fprintf(stderr, "Memory reallocation failed.\n");
+            return;
+        }
+    }
+    // виділяємо памʼять для тексту що залишився
+    char* temporary_buffer = (char*)malloc((current_length - index + 1) * sizeof(char));
+    if (temporary_buffer == nullptr) {
+        fprintf(stderr, "Memory allocation failed\n");
+        free(buffer);
+        return;
+    }
+
     strcpy(temporary_buffer, text[line] + index);
     text[line][index] = '\0'; // щоб завершити рядок
     strcat(text[line], buffer); // додаємо текст до існуючого рядка
     strcat(text[line], temporary_buffer); // додаємо текст який залишився після того що вставили
+
+    free(temporary_buffer);
+    free(buffer);
+
     printf("Text has been inserted.\n");
 }
 
