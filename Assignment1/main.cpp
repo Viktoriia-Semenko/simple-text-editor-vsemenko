@@ -113,13 +113,15 @@ void print_help(){
 }
 
 void append_text_to_end(){
-    char* buffer = nullptr;
+    char* buffer = nullptr; // цей вказівник ще не використовується
     size_t buffer_size = 0;
-    ssize_t input_length;
+    ssize_t input_length; // довжина рядка що зчитали
 
     printf("Enter a text to append: ");
     getchar(); // видалєямо рядок залишений з інпута
+    // динамічно виділяємо памʼять та зберігаємо текст в буфері
     input_length = getline(&buffer, &buffer_size, stdin);
+
     if (input_length == -1){
         fprintf(stderr, "Error while reading input.\n");
         free(buffer);
@@ -128,15 +130,17 @@ void append_text_to_end(){
 
     buffer[input_length - 1] = '\0'; // видалення нового рядка
 
+    // якщо немає ніякого текст, то починаємо зпочатку
     if (line_count == 0){
-        strncpy(text[line_count], buffer, buffer_size);
+        strncpy(text[line_count], buffer, buffer_size); // копіюємо введений текст у перший рядок
         line_count ++;
     } else{
-        size_t current_length = strlen(text[line_count - 1]);
-        size_t new_length = current_length + strlen(buffer) + 1;
-        //strcat(text[line_count - 1], buffer); // додаємо текст в останній рядок
+        size_t current_length = strlen(text[line_count - 1]); // довжина останнього рядка (без вставленого тексту)
+        size_t new_length = current_length + strlen(buffer) + 1; // довжина того шо було + новий текст + \0
 
+        // якщо нова довжина більша за виділену кількість в буфері
         if (new_length > buffer_size) {
+            // перевиділяємо памʼять для вказівника
             text[line_count - 1] = (char*) realloc(text[line_count - 1], new_length * sizeof(char));
             if (text[line_count - 1] == nullptr) {
                 fprintf(stderr, "Memory reallocation failed\n");
@@ -144,7 +148,7 @@ void append_text_to_end(){
                 return;
             }
         }
-        strcat(text[line_count - 1], buffer);
+        strcat(text[line_count - 1], buffer); // додаємо введений текст до кінця останнього рядка
     }
     free(buffer);
 }
