@@ -78,6 +78,8 @@
 ##### Result of the Case 3
 <img width="1083" alt="Знімок екрана 2024-05-27 о 12 57 15" src="https://github.com/Viktoriia-Semenko/simple-text-editor-vsemenko/assets/150340301/1abb4349-c0c6-43b2-8cde-6086a748af24">
 <img width="1122" alt="Знімок екрана 2024-05-27 о 12 57 22" src="https://github.com/Viktoriia-Semenko/simple-text-editor-vsemenko/assets/150340301/fc9bd220-5750-4fb2-b035-3d65f4df88e8">
+<img width="1122" alt="Знімок екрана 2024-05-27 о 12 57 22" src="https://github.com/Viktoriia-Semenko/simple-text-editor-vsemenko/assets/150340301/f161c758-fd5c-4ee0-9e51-40c8275dd4ff">
+
 
 
 
