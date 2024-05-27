@@ -81,6 +81,7 @@
 <img width="1122" alt="Знімок екрана 2024-05-27 о 12 57 22" src="https://github.com/Viktoriia-Semenko/simple-text-editor-vsemenko/assets/150340301/f161c758-fd5c-4ee0-9e51-40c8275dd4ff">
 
 
-
+> [!IMPORTANT]
+> If user will append text(and do other changes with text) and then save it to the file. Then again make some manipulations with text and again save it to file, to file will be saved all content(text) that were inputed to the console, even if it were already inputed to file
 
 
