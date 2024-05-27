@@ -221,7 +221,7 @@ void load_info() {
     FILE* file;
     file = fopen(load_name, "r");
     if (file == nullptr) {
-        printf("Error opening file");
+        printf("Error opening file.\n");
     }
     else {
         char my_string[100];
@@ -248,7 +248,7 @@ void insert_text_by_line(){
     printf("Choose line and index: ");
     scanf("%d %d", &line, &index);
     if (line >= line_count || index > strlen(text[line])) {
-        printf("You entered invalid line or index");
+        printf("You entered invalid line or index.\n");
         return;
     }
 
