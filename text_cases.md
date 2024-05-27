@@ -48,9 +48,36 @@
 <img width="673" alt="Знімок екрана 2024-05-27 о 00 19 30" src="https://github.com/Viktoriia-Semenko/simple-text-editor-vsemenko/assets/150340301/7152cc4f-80ff-472d-b15d-90a7df2b0e47">
 <img width="1045" alt="Знімок екрана 2024-05-27 о 00 31 06" src="https://github.com/Viktoriia-Semenko/simple-text-editor-vsemenko/assets/150340301/311b321f-7817-4754-8c9d-9004a95791de">
 
+## Case 3
 
+1. Search for the text
+	- the user is asked to enter a text to search
+	- in this test case, there is no text at the begging in the buffer, so it outputs this 'There is no match for the given text.' 
+2. Append text symbols to the end
+3. Append text symbols to the end
+4. Print the current text to console
+5. Insert the text by line and symbol index
+	- in this test case, I entered the wrong (not existed) line and index, so it outputed 'You entered invalid line or index.'
+6. Insert the text by line and symbol index
+	- Now, I inserted text in the begging of the valid line and index
+7. Saving the information
+    - I entered I new file to save this text
+8. Loading the information
+	- I loaded my previous file (test.txt)
+9. Search for the text
+	- This search has been made on the text, that I entered, while running this case from console (not on files)
+10. Print the current text to console
+11. I made a mistake on purpose when answering the question whether user wants to continue.
+	- the program outputs 'Enter a valid answer'
+	- then, asks to enter the command. If user, for example don't wand to enter a command, he may just enter '0', because it's a menu, and then enter 'y' on question 'Do you want to continue?'
+12. Start the new line
+13. Append text symbols to the end
+    - in this case the text were added to the new line
+15. Print the current text to console
 
-
+##### Result of the Case 3
+<img width="1083" alt="Знімок екрана 2024-05-27 о 12 57 15" src="https://github.com/Viktoriia-Semenko/simple-text-editor-vsemenko/assets/150340301/1abb4349-c0c6-43b2-8cde-6086a748af24">
+<img width="1122" alt="Знімок екрана 2024-05-27 о 12 57 22" src="https://github.com/Viktoriia-Semenko/simple-text-editor-vsemenko/assets/150340301/fc9bd220-5750-4fb2-b035-3d65f4df88e8">
 
 
 
