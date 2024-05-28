@@ -67,6 +67,7 @@ In this case you should clean the console before each command start.
    - **Stack:** The stack is a memory segment used to store temporary data such as local variables and function call information.
      - Стекова пам'ять автоматично керується, і розмір кожного stack frame відомий під час компіляції.
    - **Heap:** The heap is a memory segment used to store dynamically allocated memory, such as objects or instances of classes. When an object is created, memory is allocated on the heap to store its instance variables (object attributes). Each object has its own memory space in the heap, separate from other objects.
+        - місце де ми будемо виділяти памʼять в рантаймі
         - Пам'яттю купи керують явно, тобто програміст відповідає за розподіл і звільнення пам'яті.
    - **Data** - all the statically allocated data is placed into Data segment of a process.
      - Divided into two parts - the **initialized** data segment and the** uninitialized **data segment
@@ -79,10 +80,42 @@ In this case you should clean the console before each command start.
       - Розподіл: цей сегмент зазвичай призначений лише для читання та містить скомпільований код програми.
       - Керування: Керується компілятором і завантажувачем. Тут ви не розподіляєте пам’ять безпосередньо.
    - **Stack:**
-     
+      - Розподіл: використовується для керування викликами функцій, включаючи локальні змінні, параметри функції та адреси повернення.
+      - Керування: автоматично керується компілятором і операційною системою.
+   - **Heap:**
+      - Allocation: Used for dynamic memory allocation.
+      - Management: Managed at runtime using library functions.
+      - Functions:
+        ``` C
+        - malloc(size_t size): Allocates size bytes and returns a pointer to the allocated memory.
+        - calloc(size_t nmemb, size_t size): Allocates memory for an array of nmemb elements, each of size bytes,
+         and initializes all bytes to zero.
+        - realloc(void *ptr, size_t size): Changes the size of the memory block pointed to by ptr to size bytes.
+        - free(void *ptr): Deallocates the memory previously allocated by malloc, calloc, or realloc.
+        ```
+   - **Data:**
+     - Initialized Data Segment
+       - Allocation: Stores global and static variables that are explicitly initialized.
+       - Management: Allocated by the compiler during compile time and the loader during program load.
+     - Uninitialized Data Segment (BSS)
+        - Allocation: Stores global and static variables that are declared but not explicitly initialized.
+        - Management: Allocated by the compiler during compile time and the loader during program load. The operating system initializes it to zero
+   <br></br>       
 12. How to reallocate the memory in case we don’t have enough space?
+   - У C, коли вам потрібно перерозподілити пам’ять, оскільки початково виділеного простору недостатньо, ви можете скористатися функцією realloc. Функція realloc намагається змінити розмір раніше виділеного блоку пам’яті на новий розмір
+   - realloc takes two arguments: a pointer to the previously allocated memory and the new size in bytes.
+     ```C
+     int new_size = 10;
+     int *new_array = (int *)realloc(array, new_size * sizeof(int));
+     ```
+   - Using realloc to resize dynamically allocated memory when you need more space.
 13. What is a runtime stack?
-   
+   - Run time stack є критичним компонентом пам’яті програми, який використовується для керування викликами функцій, локальними змінними та керування потоком під час виконання програми.
+   - LIFO Structure
+   - Автоматичне керування пам'яттю:
+     - Виділення та звільнення: пам’ять для локальних змінних автоматично виділяється під час виклику функції та звільняється, коли функція повертається. Цим керує вказівник стека, який регулює функції надсилання та висунення кадрів стека.
+     - Control Flow:
+       - Адреси повернення: адреса повернення, що зберігається в кожному кадрі стека, гарантує, що програма може продовжити виконання з правильного розташування після завершення виклику функції.
 # 🌟 **Evaluation**
 - Appending text to the end 1
 - Starting a new line 1
